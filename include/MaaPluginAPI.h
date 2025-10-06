@@ -1,7 +1,6 @@
 #pragma once
 
-#include "MaaDef.h"
-#include "MaaPort.h"
+#include "MaaPluginPort.h"
 
 #ifdef __cplusplus
 extern "C"

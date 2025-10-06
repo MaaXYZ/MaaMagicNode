@@ -1,4 +1,4 @@
-#include "MaaPlugin.h"
+#include "MaaPluginAPI.h"
 
 #include <meojson/json.hpp>
 
