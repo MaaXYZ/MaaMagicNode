@@ -4,23 +4,39 @@
 
 #include <utility>
 
-void OnTaskerMessage(const char* message, const char* details_json, void* notify_trans_arg)
+uint32_t GetApiVersion()
 {
-    std::ignore = message;
-    std::ignore = details_json;
-    std::ignore = notify_trans_arg;
+    return 1;
 }
 
-void OnResourceMessage(const char* message, const char* details_json, void* notify_trans_arg)
+void OnResourceEvent(void* handle, const char* message, const char* details_json, void* trans_arg)
 {
+    std::ignore = handle;
     std::ignore = message;
     std::ignore = details_json;
-    std::ignore = notify_trans_arg;
+    std::ignore = trans_arg;
 }
 
-void OnControllerMessage(const char* message, const char* details_json, void* notify_trans_arg)
+void OnControllerEvent(void* handle, const char* message, const char* details_json, void* trans_arg)
 {
+    std::ignore = handle;
     std::ignore = message;
     std::ignore = details_json;
-    std::ignore = notify_trans_arg;
+    std::ignore = trans_arg;
+}
+
+void OnTaskerEvent(void* handle, const char* message, const char* details_json, void* trans_arg)
+{
+    std::ignore = handle;
+    std::ignore = message;
+    std::ignore = details_json;
+    std::ignore = trans_arg;
+}
+
+void OnContextEvent(void* handle, const char* message, const char* details_json, void* trans_arg)
+{
+    std::ignore = handle;
+    std::ignore = message;
+    std::ignore = details_json;
+    std::ignore = trans_arg;
 }
