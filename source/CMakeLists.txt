@@ -10,7 +10,7 @@ target_include_directories(
 
 target_compile_definitions(MaaMagicNode PRIVATE MAA_PLUGIN_EXPORTS)
 
-target_link_libraries(MaaMagicNode PRIVATE HeaderOnlyLibraries)
+target_link_libraries(MaaMagicNode PRIVATE HeaderOnlyLibraries MaaFramework::MaaFramework)
 
 install(TARGETS MaaMagicNode)
 
