@@ -2,24 +2,27 @@
 
 #include <utility>
 
-#include <meojson/json.hpp>
 #include <MaaFramework/MaaAPI.h>
+#include <meojson/json.hpp>
 
 #include "ResourceEventHandler/ResourceEventHandler.h"
 
 uint32_t GetApiVersion()
 {
-    return 1;
+    constexpr uint32_t kApiVersion = 1;
+    return kApiVersion;
 }
 
 void OnResourceEvent(void* handle, const char* message, const char* details_json, void* trans_arg)
 {
     MaaResource* res = static_cast<MaaResource*>(handle);
 
-    std::ignore = res;
-    std::ignore = message;
-    std::ignore = details_json;
-    std::ignore = trans_arg;
+    auto jopt = json::parse(details_json);
+    if (!jopt) {
+        return;
+    }
+
+    ResourceEventHandler::get_instance().on_event(res, message, *jopt);
 }
 
 void OnControllerEvent(void* handle, const char* message, const char* details_json, void* trans_arg)
