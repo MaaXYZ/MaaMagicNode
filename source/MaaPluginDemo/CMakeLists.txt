@@ -12,7 +12,11 @@ target_compile_definitions(MaaPluginDemo PRIVATE MAA_PLUGIN_EXPORTS)
 
 target_link_libraries(MaaPluginDemo PRIVATE MaaUtils MaaFramework::MaaFramework)
 
-install(TARGETS MaaPluginDemo)
+install(TARGETS MaaPluginDemo
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION bin
+    ARCHIVE DESTINATION lib
+)
 
 if(WIN32)
     install(FILES $<TARGET_PDB_FILE:MaaPluginDemo> DESTINATION symbol OPTIONAL)
