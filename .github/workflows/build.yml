@@ -128,17 +128,12 @@ jobs:
 
             - name: Install dep
               run: |
-                  sudo apt-get install -y ninja-build cmake ccache
+                  sudo apt-get install -y ninja-build cmake
 
             # https://github.com/MaaXYZ/MaaPluginDemo/actions/runs/5643408179/job/15285186255
             - uses: actions/checkout@v4
               with:
                   submodules: true
-
-            - name: Setup ccache
-              uses: Chocobo1/setup-ccache-action@v1
-              with:
-                  remove_stale_cache: false
 
             - name: Download MaaFramework
               uses: robinraju/release-downloader@v1
@@ -196,12 +191,7 @@ jobs:
 
             - name: Install dep
               run: |
-                  brew install ninja ccache
-
-            - name: Setup ccache
-              uses: Chocobo1/setup-ccache-action@v1
-              with:
-                  remove_stale_cache: false
+                  brew install ninja
 
             - name: Download MaaFramework
               uses: robinraju/release-downloader@v1
@@ -266,11 +256,6 @@ jobs:
               id: setup-ndk
               with:
                   ndk-version: r27c
-
-            - name: Setup ccache
-              uses: Chocobo1/setup-ccache-action@v1
-              with:
-                  remove_stale_cache: false
 
             - name: Download MaaFramework
               uses: robinraju/release-downloader@v1

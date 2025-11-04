@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.28)
 
 project(MaaPlugin)
 
-set(BUILD_MAA_UTILS ON)
+# set(BUILD_MAA_UTILS ON)
 
 include(source/MaaUtils/MaaUtils.cmake)
 
