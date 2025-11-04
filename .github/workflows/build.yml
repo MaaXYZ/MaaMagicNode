@@ -102,7 +102,7 @@ jobs:
                   cmake --install build --prefix install --config ${{ inputs.build_config || needs.meta.outputs.build_config }}
                   rm -rf install/bin/msvc-debug
 
-                  cp -r LICENSE.md install
+                  cp -r LICENSE install
 
             - uses: actions/upload-artifact@v4
               if: always()
@@ -169,7 +169,7 @@ jobs:
               run: |
                   cmake --install build --prefix install --config ${{ inputs.build_config || needs.meta.outputs.build_config }}
 
-                  cp -r LICENSE.md install
+                  cp -r LICENSE install
 
             - uses: actions/upload-artifact@v4
               if: always()
@@ -234,7 +234,7 @@ jobs:
               run: |
                   cmake --install build --prefix install --config ${{ inputs.build_config || needs.meta.outputs.build_config }}
 
-                  cp -r LICENSE.md install
+                  cp -r LICENSE install
 
             - uses: actions/upload-artifact@v4
               if: always()
@@ -304,7 +304,7 @@ jobs:
               run: |
                   cmake --install build --prefix install --config ${{ inputs.build_config || needs.meta.outputs.build_config }}
 
-                  cp -r LICENSE.md install
+                  cp -r LICENSE install
 
             - uses: actions/upload-artifact@v4
               if: always()
