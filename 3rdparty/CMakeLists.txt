@@ -1,2 +1,0 @@
-add_library(HeaderOnlyLibraries INTERFACE)
-target_include_directories(HeaderOnlyLibraries INTERFACE include)
