@@ -298,7 +298,7 @@ jobs:
                   path: 'install'
 
     release:
-        if: ${{ needs.meta.outputs.is_release == 'true' && github.repository_id == '632024122' }}
+        if: ${{ needs.meta.outputs.is_release == 'true'}}
         needs: [meta, windows, ubuntu, macos, android]
         runs-on: ubuntu-latest
         env:
