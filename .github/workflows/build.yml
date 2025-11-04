@@ -69,6 +69,7 @@ jobs:
               uses: robinraju/release-downloader@v1
               with:
                 repository: MaaXYZ/MaaFramework
+                latest: true
                 fileName: "MAA-win-${{ matrix.arch }}*"
                 out-file-path: "deps"
                 extract: true
@@ -142,6 +143,7 @@ jobs:
               uses: robinraju/release-downloader@v1
               with:
                 repository: MaaXYZ/MaaFramework
+                latest: true
                 fileName: "MAA-linux-${{ matrix.arch }}*"
                 out-file-path: "deps"
                 extract: true
@@ -203,6 +205,7 @@ jobs:
               uses: robinraju/release-downloader@v1
               with:
                 repository: MaaXYZ/MaaFramework
+                latest: true
                 fileName: "MAA-macos-${{ matrix.arch }}*"
                 out-file-path: "deps"
                 extract: true
@@ -270,6 +273,7 @@ jobs:
               uses: robinraju/release-downloader@v1
               with:
                 repository: MaaXYZ/MaaFramework
+                latest: true
                 fileName: "MAA-android-${{ matrix.arch }}*"
                 out-file-path: "deps"
                 extract: true
