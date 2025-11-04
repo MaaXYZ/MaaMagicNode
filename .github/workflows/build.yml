@@ -1,0 +1,324 @@
+name: build
+
+on:
+    push:
+        tags:
+            - 'v*'
+        branches:
+            - '**'
+        paths:
+            - '.github/workflows/build.yml'
+            - 'source/**'
+            - 'CMakeLists.txt'
+
+    pull_request:
+        branches:
+            - '**'
+        paths:
+            - '.github/workflows/build.yml'
+            - 'source/**'
+            - 'CMakeLists.txt'
+
+    workflow_dispatch:
+        inputs:
+            build_config:
+                required: true
+                default: 'Debug'
+                type: choice
+                options:
+                    - Debug
+                    - RelWithDebInfo
+                    - Release
+
+jobs:
+    meta:
+        uses: ./.github/workflows/meta.yml
+
+    windows:
+        needs: meta
+        runs-on: windows-latest
+        strategy:
+            matrix:
+                arch: [x86_64, aarch64]
+            fail-fast: false
+
+        steps:
+            - name: Windows runner hack
+              shell: cmd
+              run: |
+                  dir d:\a
+                  cd ..
+                  mkdir C:\MaaPluginDemo
+                  rmdir MaaPluginDemo
+                  mklink /j MaaPluginDemo C:\MaaPluginDemo
+                  dism /Online /Disable-Feature /FeatureName:Windows-Defender /Remove /NoRestart /Quiet
+                  cd .
+
+            - name: Windows runner hack (2)
+              uses: al-cheb/configure-pagefile-action@v1.4
+              with:
+                  minimum-size: 16GB
+                  maximum-size: 16GB
+                  disk-root: 'D:'
+
+            - uses: actions/checkout@v4
+              with:
+                  submodules: true
+
+            - name: Download MaaFramework
+              uses: robinraju/release-downloader@v1
+              with:
+                repository: MaaXYZ/MaaFramework
+                latest: true
+                prerelease: ${{ needs.meta.outputs.is_release != 'true' || needs.meta.outputs.is_pre_release == 'true' }}
+                fileName: "MAA-win-${{ matrix.arch }}*"
+                out-file-path: "deps"
+                extract: true
+
+            - name: Cache MaaDeps
+              id: cache-maadeps
+              uses: actions/cache@v4
+              with:
+                path: |
+                    ./source/MaaUtils/MaaDeps
+                key: maadeps-${{ runner.os }}-${{ matrix.arch }}-${{ hashFiles('./tools/maadeps-download.py') }}
+
+            - name: Bootstrap MaaDeps
+              if: steps.cache-maadeps.outputs.cache-hit != 'true'
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  python3 tools/maadeps-download.py ${{ matrix.arch == 'x86_64' && 'x64' || 'arm64' }}-windows
+
+            - name: Build MAA
+              run: |
+                  cmake --preset "${{ matrix.arch == 'x86_64' && 'MSVC 2022' || 'MSVC 2022 ARM' }}" -DCMAKE_SYSTEM_VERSION="10.0.26100.0" -DMAADEPS_TRIPLET="maa-${{ matrix.arch == 'x86_64' && 'x64' || 'arm64' }}-windows" -DMAA_HASH_VERSION='${{ needs.meta.outputs.tag }}'
+
+                  cmake --build build --preset "${{ matrix.arch == 'x86_64' && 'MSVC 2022' || 'MSVC 2022 ARM' }} - ${{ inputs.build_config || needs.meta.outputs.build_config }}" -j 16
+
+            - name: Install
+              shell: bash
+              run: |
+                  cmake --install build --prefix install --config ${{ inputs.build_config || needs.meta.outputs.build_config }}
+                  rm -rf install/bin/msvc-debug
+
+                  cp -r LICENSE install
+
+            - uses: actions/upload-artifact@v4
+              if: always()
+              with:
+                  name: MaaPluginDemo-win-${{ matrix.arch }}
+                  path: 'install'
+
+    ubuntu:
+        needs: meta
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                arch: [aarch64, x86_64]
+            fail-fast: false
+
+        steps:
+            # maybe should explicitly update some pkg instead of all?
+            - name: Update system
+              run: |
+                  sudo apt-get update -y
+                  sudo apt-get remove -y --purge firefox
+                  sudo apt-get upgrade -y
+
+            - name: Install dep
+              run: |
+                  sudo apt-get install -y ninja-build cmake
+
+            # https://github.com/MaaXYZ/MaaPluginDemo/actions/runs/5643408179/job/15285186255
+            - uses: actions/checkout@v4
+              with:
+                  submodules: true
+
+            - name: Download MaaFramework
+              uses: robinraju/release-downloader@v1
+              with:
+                repository: MaaXYZ/MaaFramework
+                latest: true
+                prerelease: ${{ needs.meta.outputs.is_release != 'true' || needs.meta.outputs.is_pre_release == 'true' }}
+                fileName: "MAA-linux-${{ matrix.arch }}*"
+                out-file-path: "deps"
+                extract: true
+
+            - name: Bootstrap MaaDeps
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  python3 tools/maadeps-download.py ${{ matrix.arch == 'x86_64' && 'x64' || 'arm64' }}-linux
+
+            - name: Build MAA
+              run: |
+                  cmake --preset 'NinjaMulti Linux ${{ matrix.arch == 'x86_64' && 'x64' || 'arm64' }}' \
+                    -DMAADEPS_TRIPLET='maa-${{ matrix.arch == 'x86_64' && 'x64' || 'arm64' }}-linux' \
+                    -DMAA_HASH_VERSION='${{ needs.meta.outputs.tag }}'
+
+                  cmake --build build --preset 'NinjaMulti Linux ${{ matrix.arch == 'x86_64' && 'x64' || 'arm64' }} - ${{ inputs.build_config || needs.meta.outputs.build_config }}' -j 16
+
+            - name: Install
+              shell: bash
+              run: |
+                  cmake --install build --prefix install --config ${{ inputs.build_config || needs.meta.outputs.build_config }}
+
+                  cp -r LICENSE install
+
+            - uses: actions/upload-artifact@v4
+              if: always()
+              with:
+                  name: MaaPluginDemo-linux-${{ matrix.arch }}
+                  path: 'install'
+
+    macos:
+        needs: meta
+        strategy:
+            matrix:
+                arch: [aarch64, x86_64]
+            fail-fast: false
+        runs-on: macos-latest
+
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  submodules: true
+
+            - uses: maxim-lobanov/setup-xcode@v1
+              with:
+                  xcode-version: 16.2
+
+            - name: Install dep
+              run: |
+                  brew install ninja
+
+            - name: Download MaaFramework
+              uses: robinraju/release-downloader@v1
+              with:
+                repository: MaaXYZ/MaaFramework
+                latest: true
+                prerelease: ${{ needs.meta.outputs.is_release != 'true' || needs.meta.outputs.is_pre_release == 'true' }}
+                fileName: "MAA-macos-${{ matrix.arch }}*"
+                out-file-path: "deps"
+                extract: true
+
+            - name: Bootstrap MaaDeps
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  python3 tools/maadeps-download.py ${{ matrix.arch == 'x86_64' && 'x64' || 'arm64' }}-osx
+
+            - name: Build MAA
+              run: |
+                  cmake --preset 'NinjaMulti' \
+                    -DMAADEPS_TRIPLET='maa-${{ matrix.arch == 'x86_64' && 'x64' || 'arm64' }}-osx' \
+                    -DMAA_HASH_VERSION='${{ needs.meta.outputs.tag }}' \
+                    -DCMAKE_OSX_SYSROOT=macosx \
+                    -DCMAKE_OSX_ARCHITECTURES='${{ matrix.arch == 'x86_64' && 'x86_64' || 'arm64' }}'
+
+                  cmake --build build --preset 'NinjaMulti - ${{ inputs.build_config || needs.meta.outputs.build_config }}' -j 16
+
+            - name: Install
+              shell: bash
+              run: |
+                  cmake --install build --prefix install --config ${{ inputs.build_config || needs.meta.outputs.build_config }}
+
+                  cp -r LICENSE install
+
+            - uses: actions/upload-artifact@v4
+              if: always()
+              with:
+                  name: MaaPluginDemo-macos-${{ matrix.arch }}
+                  path: 'install'
+
+    android:
+        needs: meta
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                include:
+                    - arch: x86_64
+                    - arch: aarch64
+            fail-fast: false
+
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  submodules: true
+
+            - name: Install Packages
+              run: |
+                  sudo apt-get update -y
+                  sudo apt-get install -y ninja-build python3-pyelftools elfutils patchelf nasm
+
+            - uses: nttld/setup-ndk@v1
+              id: setup-ndk
+              with:
+                  ndk-version: r27c
+
+            - name: Download MaaFramework
+              uses: robinraju/release-downloader@v1
+              with:
+                repository: MaaXYZ/MaaFramework
+                latest: true
+                prerelease: ${{ needs.meta.outputs.is_release != 'true' || needs.meta.outputs.is_pre_release == 'true' }}
+                fileName: "MAA-android-${{ matrix.arch }}*"
+                out-file-path: "deps"
+                extract: true
+
+            - name: Bootstrap MaaDeps
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  python3 tools/maadeps-download.py ${{ matrix.arch == 'x86_64' && 'x64' || 'arm64' }}-android
+
+            - name: Build MAA
+              run: |
+                  cmake --preset 'NinjaMulti' \
+                    -DCMAKE_TOOLCHAIN_FILE=${{ steps.setup-ndk.outputs.ndk-path}}/build/cmake/android.toolchain.cmake \
+                    -DANDROID_ABI=${{ matrix.arch == 'x86_64' && 'x86_64' || 'arm64-v8a' }} \
+                    -DANDROID_PLATFORM=android-23 \
+                    -DMAADEPS_TRIPLET='maa-${{ matrix.arch == 'x86_64' && 'x64' || 'arm64' }}-android' \
+                    -DMAA_HASH_VERSION='${{ needs.meta.outputs.tag }}'
+
+                  cmake --build build --preset 'NinjaMulti - ${{ inputs.build_config || needs.meta.outputs.build_config }}' -j 16
+
+            - name: Install
+              shell: bash
+              run: |
+                  cmake --install build --prefix install --config ${{ inputs.build_config || needs.meta.outputs.build_config }}
+
+                  cp -r LICENSE install
+
+            - uses: actions/upload-artifact@v4
+              if: always()
+              with:
+                  name: MaaPluginDemo-android-${{ matrix.arch }}
+                  path: 'install'
+
+    release:
+        if: ${{ needs.meta.outputs.is_release == 'true' && github.repository_id == '632024122' }}
+        needs: [meta, windows, ubuntu, macos, android]
+        runs-on: ubuntu-latest
+        env:
+            OUTPUT_PUBLISH_FAILED: 'echo "failed=true" >> $GITHUB_OUTPUT && echo "::error::Failed to publish packages"'
+            NUGET_PACKAGE_SOURCE: https://api.nuget.org/v3/index.json # https://apiint.nugettest.org/v3/index.json
+
+        steps:
+            - uses: actions/download-artifact@v4
+              with:
+                  path: assets
+
+            - run: |
+                  cd assets
+                  for f in *; do
+                    (cd $f && zip -r ../$f-${{ needs.meta.outputs.tag }}.zip .)
+                  done
+
+            - uses: softprops/action-gh-release@v2
+              with:
+                  files: assets/*.zip
+                  tag_name: ${{ needs.meta.outputs.tag }}
+                  prerelease: ${{ needs.meta.outputs.is_pre_release == 'true' }}
+                  generate_release_notes: true
