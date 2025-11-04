@@ -70,7 +70,7 @@ jobs:
               with:
                 repository: MaaXYZ/MaaFramework
                 latest: true
-                prerelease: true
+                prerelease: ${{ needs.meta.outputs.is_release != 'true' || needs.meta.outputs.is_pre_release == 'true' }}
                 fileName: "MAA-win-${{ matrix.arch }}*"
                 out-file-path: "deps"
                 extract: true
@@ -107,7 +107,7 @@ jobs:
             - uses: actions/upload-artifact@v4
               if: always()
               with:
-                  name: MAA-win-${{ matrix.arch }}
+                  name: MaaPluginDemo-win-${{ matrix.arch }}
                   path: 'install'
 
     ubuntu:
@@ -140,7 +140,7 @@ jobs:
               with:
                 repository: MaaXYZ/MaaFramework
                 latest: true
-                prerelease: true
+                prerelease: ${{ needs.meta.outputs.is_release != 'true' || needs.meta.outputs.is_pre_release == 'true' }}
                 fileName: "MAA-linux-${{ matrix.arch }}*"
                 out-file-path: "deps"
                 extract: true
@@ -169,7 +169,7 @@ jobs:
             - uses: actions/upload-artifact@v4
               if: always()
               with:
-                  name: MAA-linux-${{ matrix.arch }}
+                  name: MaaPluginDemo-linux-${{ matrix.arch }}
                   path: 'install'
 
     macos:
@@ -198,7 +198,7 @@ jobs:
               with:
                 repository: MaaXYZ/MaaFramework
                 latest: true
-                prerelease: true
+                prerelease: ${{ needs.meta.outputs.is_release != 'true' || needs.meta.outputs.is_pre_release == 'true' }}
                 fileName: "MAA-macos-${{ matrix.arch }}*"
                 out-file-path: "deps"
                 extract: true
@@ -229,7 +229,7 @@ jobs:
             - uses: actions/upload-artifact@v4
               if: always()
               with:
-                  name: MAA-macos-${{ matrix.arch }}
+                  name: MaaPluginDemo-macos-${{ matrix.arch }}
                   path: 'install'
 
     android:
@@ -262,7 +262,7 @@ jobs:
               with:
                 repository: MaaXYZ/MaaFramework
                 latest: true
-                prerelease: true
+                prerelease: ${{ needs.meta.outputs.is_release != 'true' || needs.meta.outputs.is_pre_release == 'true' }}
                 fileName: "MAA-android-${{ matrix.arch }}*"
                 out-file-path: "deps"
                 extract: true
@@ -294,7 +294,7 @@ jobs:
             - uses: actions/upload-artifact@v4
               if: always()
               with:
-                  name: MAA-android-${{ matrix.arch }}
+                  name: MaaPluginDemo-android-${{ matrix.arch }}
                   path: 'install'
 
     release:
