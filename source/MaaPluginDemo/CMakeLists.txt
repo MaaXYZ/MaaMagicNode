@@ -18,7 +18,7 @@ if(WIN32)
     install(FILES $<TARGET_PDB_FILE:MaaPluginDemo> DESTINATION symbol OPTIONAL)
 endif()
 
-install(DIRECTORY "${MAA_PLUGIN_PUBLIC_INC}" DESTINATION ".")
+install(DIRECTORY ${MAA_PLUGIN_PUBLIC_INC}/ DESTINATION include)
 
 add_dependencies(MaaPluginDemo MaaUtils)
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${maa_plugin_demo_src})
