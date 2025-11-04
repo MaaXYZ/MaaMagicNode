@@ -10,7 +10,7 @@ target_include_directories(
 
 target_compile_definitions(MaaPluginDemo PRIVATE MAA_PLUGIN_EXPORTS)
 
-target_link_libraries(MaaPluginDemo PRIVATE MaaFramework::MaaFramework)
+target_link_libraries(MaaPluginDemo PRIVATE MaaUtils MaaFramework::MaaFramework)
 
 install(TARGETS MaaPluginDemo)
 
@@ -20,4 +20,5 @@ endif()
 
 install(DIRECTORY "${MAA_PLUGIN_PUBLIC_INC}" DESTINATION ".")
 
+add_dependencies(MaaPluginDemo MaaUtils)
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${maa_plugin_demo_src})
