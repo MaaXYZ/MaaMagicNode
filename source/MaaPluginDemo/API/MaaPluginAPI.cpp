@@ -5,6 +5,11 @@
 #include <MaaFramework/MaaAPI.h>
 #include <meojson/json.hpp>
 
+const char* GetPluginVersion()
+{
+    return MAA_VERSION;
+}
+
 uint32_t GetApiVersion()
 {
     constexpr uint32_t kApiVersion = 1;
