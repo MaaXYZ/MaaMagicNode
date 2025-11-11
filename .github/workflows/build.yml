@@ -65,12 +65,18 @@ jobs:
               with:
                   submodules: true
 
+            - id: latest-release
+              uses: pozetroninc/github-action-get-latest-release@master
+              with:
+                repository: MaaXYZ/MaaFramework
+                token: ${{ inputs.github_token }}
+                excludes: "draft"
+        
             - name: Download MaaFramework
               uses: robinraju/release-downloader@v1
               with:
                 repository: MaaXYZ/MaaFramework
-                latest: true
-                prerelease: ${{ needs.meta.outputs.is_release != 'true' || needs.meta.outputs.is_pre_release == 'true' }}
+                tag: ${{ steps.latest-release.outputs.release }}
                 fileName: "MAA-win-${{ matrix.arch }}*"
                 out-file-path: "deps"
                 extract: true
@@ -135,12 +141,18 @@ jobs:
               with:
                   submodules: true
 
+            - id: latest-release
+              uses: pozetroninc/github-action-get-latest-release@master
+              with:
+                repository: MaaXYZ/MaaFramework
+                token: ${{ inputs.github_token }}
+                excludes: "draft"
+        
             - name: Download MaaFramework
               uses: robinraju/release-downloader@v1
               with:
                 repository: MaaXYZ/MaaFramework
-                latest: true
-                prerelease: ${{ needs.meta.outputs.is_release != 'true' || needs.meta.outputs.is_pre_release == 'true' }}
+                tag: ${{ steps.latest-release.outputs.release }}
                 fileName: "MAA-linux-${{ matrix.arch }}*"
                 out-file-path: "deps"
                 extract: true
@@ -193,12 +205,18 @@ jobs:
               run: |
                   brew install ninja
 
+            - id: latest-release
+              uses: pozetroninc/github-action-get-latest-release@master
+              with:
+                repository: MaaXYZ/MaaFramework
+                token: ${{ inputs.github_token }}
+                excludes: "draft"
+        
             - name: Download MaaFramework
               uses: robinraju/release-downloader@v1
               with:
                 repository: MaaXYZ/MaaFramework
-                latest: true
-                prerelease: ${{ needs.meta.outputs.is_release != 'true' || needs.meta.outputs.is_pre_release == 'true' }}
+                tag: ${{ steps.latest-release.outputs.release }}
                 fileName: "MAA-macos-${{ matrix.arch }}*"
                 out-file-path: "deps"
                 extract: true
@@ -257,12 +275,18 @@ jobs:
               with:
                   ndk-version: r27c
 
+            - id: latest-release
+              uses: pozetroninc/github-action-get-latest-release@master
+              with:
+                repository: MaaXYZ/MaaFramework
+                token: ${{ inputs.github_token }}
+                excludes: "draft"
+        
             - name: Download MaaFramework
               uses: robinraju/release-downloader@v1
               with:
                 repository: MaaXYZ/MaaFramework
-                latest: true
-                prerelease: ${{ needs.meta.outputs.is_release != 'true' || needs.meta.outputs.is_pre_release == 'true' }}
+                tag: ${{ steps.latest-release.outputs.release }}
                 fileName: "MAA-android-${{ matrix.arch }}*"
                 out-file-path: "deps"
                 extract: true
