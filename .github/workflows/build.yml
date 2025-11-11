@@ -69,7 +69,7 @@ jobs:
               uses: pozetroninc/github-action-get-latest-release@master
               with:
                 repository: MaaXYZ/MaaFramework
-                token: ${{ inputs.github_token }}
+                token: ${{ secrets.GITHUB_TOKEN }}
                 excludes: "draft"
         
             - name: Download MaaFramework
@@ -80,6 +80,7 @@ jobs:
                 fileName: "MAA-win-${{ matrix.arch }}*"
                 out-file-path: "deps"
                 extract: true
+                token: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Cache MaaDeps
               id: cache-maadeps
@@ -145,7 +146,7 @@ jobs:
               uses: pozetroninc/github-action-get-latest-release@master
               with:
                 repository: MaaXYZ/MaaFramework
-                token: ${{ inputs.github_token }}
+                token: ${{ secrets.GITHUB_TOKEN }}
                 excludes: "draft"
         
             - name: Download MaaFramework
@@ -156,6 +157,7 @@ jobs:
                 fileName: "MAA-linux-${{ matrix.arch }}*"
                 out-file-path: "deps"
                 extract: true
+                token: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Bootstrap MaaDeps
               env:
@@ -209,7 +211,7 @@ jobs:
               uses: pozetroninc/github-action-get-latest-release@master
               with:
                 repository: MaaXYZ/MaaFramework
-                token: ${{ inputs.github_token }}
+                token: ${{ secrets.GITHUB_TOKEN }}
                 excludes: "draft"
         
             - name: Download MaaFramework
@@ -220,6 +222,7 @@ jobs:
                 fileName: "MAA-macos-${{ matrix.arch }}*"
                 out-file-path: "deps"
                 extract: true
+                token: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Bootstrap MaaDeps
               env:
@@ -279,7 +282,7 @@ jobs:
               uses: pozetroninc/github-action-get-latest-release@master
               with:
                 repository: MaaXYZ/MaaFramework
-                token: ${{ inputs.github_token }}
+                token: ${{ secrets.GITHUB_TOKEN }}
                 excludes: "draft"
         
             - name: Download MaaFramework
@@ -290,6 +293,7 @@ jobs:
                 fileName: "MAA-android-${{ matrix.arch }}*"
                 out-file-path: "deps"
                 extract: true
+                token: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Bootstrap MaaDeps
               env:
